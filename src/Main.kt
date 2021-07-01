@@ -2,7 +2,7 @@ import java.util.*
 
 
 fun main(args: Array<String>) {
-    println("\nFlujo maximo: ${EdmonsKarp().edmonsKarp()}")
+    println(EdmonsKarp().edmonsKarp())
 }
 
 class EdmonsKarp {
@@ -30,10 +30,10 @@ class EdmonsKarp {
         t = sc.nextInt()-1
 
         for(i in 0 until cantArcos) {
-            val u = sc.nextInt()
-            val v = sc.nextInt()
+            val u = sc.nextInt()-1
+            val v = sc.nextInt()-1
             val cap = sc.nextInt()
-            arcos[u-1][v-1] = cap
+            arcos[u][v] = cap
         }
 
         while (true) {
@@ -60,26 +60,30 @@ class EdmonsKarp {
     private fun bfs(): Boolean {
         cf = Int.MAX_VALUE
         padre = IntArray(cantNodos)
+        padre[t] = -1
 
         var visitado = BooleanArray(cantNodos)
         var cola: Queue<Int> = ArrayDeque()
         visitado[s] = true
 
         cola.add(s)
-        while(!cola.isEmpty()) {
+        while(!cola.isEmpty() && cola.peek()!=t) {
             var arco = cola.remove()
             for(i in 0 until cantNodos)
                 if(!visitado[i] && arcos[arco][i] > flujo[arco][i]) {
                     visitado[i] = true
                     padre[i] = arco
-                    cf = cf.coerceAtMost(arcos[arco][i] - flujo[arco][i])
-
-                    if (i != t) {
-                        cola.add(i)
-                    }
-                    else return true
+                    cola.add(i)
                 }
         }
-        return false
+        if(padre[t] == -1)
+            return false
+
+        var nodo = t
+        while(nodo!=s) {
+            cf = cf.coerceAtMost(arcos[padre[nodo]][nodo] - flujo[padre[nodo]][nodo])
+            nodo = padre[nodo]
+        }
+        return true
     }
 }
